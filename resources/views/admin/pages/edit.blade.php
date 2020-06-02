@@ -72,6 +72,25 @@
               'path' => 'images/nomefoto5.jpg'
           ],
     ];
+
+    $page = [
+      'id' => 1,
+      'title' => 'lorem ipsum dolor sit	',
+      'summary' =>  'lorem ipsum dolor sit	',
+      'body' => 'Questo è un testo',
+      'category_id' => 2,
+      'tags' => [
+        1 ,
+        3 ,
+        5
+      ],
+      'photos' => [
+        3, 2
+      ]
+    ];
+
+$oldtags = null;
+$message = '';
 @endphp
 
 
@@ -83,8 +102,8 @@
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="{{route('admin.pages.index')}}">Pages</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Create</li>
+                    <li class="breadcrumb-item" aria-current="page"> <a href="{{route('admin.pages.index')}}">Pages</a> </li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
                   </ol>
                 </nav>
             </div>
@@ -93,7 +112,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2>Create new page</h2>
+                <h2>Edit the page</h2>
             </div>
         </div>
     </div>
@@ -102,17 +121,17 @@
             <div class="col-12">
                 <form action="" method="post">
                     @csrf
-                    @method('POST')
+                    @method('PUT')
                     <div class="form-group">
                         <label for="title">Title</label>
-                        <input class="form-control" type="text" name="title" id="title" placeholder="Insert title">
+                        <input class="form-control" type="text" name="title" id="title" placeholder="Insert title" value="{{$page['title']}}">
                         @error('title')
                             <small class="form-text">Errore</small>
                         @enderror
                     </div>
                     <div class="form-group">
                         <label for="title">Summary</label>
-                        <input class="form-control" type="text" name="summary" id="summary" placeholder="Insert summary">
+                        <input class="form-control" type="text" name="summary" id="summary" placeholder="Insert summary" value="{{$page['summary']}}">
                         @error('summary')
                             <small class="form-text">Errore</small>
                         @enderror
@@ -121,7 +140,15 @@
                         <label for="title">Category</label>
                         <select class="custom-select" name="category">
                             @foreach ($categories as $category)
-                                <option value="{{$category['id']}}">{{$category['title']}}</option>
+                              @if($category['id'] == $page['category_id'])
+                                  @php
+                                    var_dump($category['id'], $category['id'] == $page['category_id']);
+                                    $message = 'selected';
+                                  @endphp
+                                  <option value="{{$category['id']}}" {{$message}}>{{$category['title']}}</option>
+                              @else
+                                  <option value="{{$category['id']}}">{{$category['title']}}</option>
+                              @endif
                             @endforeach
                         </select>
                         @error('category')
@@ -130,7 +157,7 @@
                     </div>
                     <div class="form-group">
                         <label for="title">Body</label>
-                        <textarea class="form-control" name="body" rows="8"></textarea>
+                        <textarea class="form-control" name="body" rows="8">{{$page['body']}}</textarea>
                         @error('body')
                             <small class="form-text">Errore</small>
                         @enderror
@@ -140,7 +167,23 @@
                         <legend>Tags</legend>
                         @foreach ($tags as $tag)
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input"  type="checkbox" name="tags[]" id="tag{{$tag['id']}}" value="{{$tag['id']}}">
+                            @if(is_array($oldtags))
+                           <input class="form-check-input"  type="checkbox" name="tags[]" id="tag{{$tag['id']}}" value="{{$tag['id']}}"
+                           {{
+                             (in_array($tag['id'],  $oldtags))
+
+                             ? 'checked' : ''
+                           }}
+                           >
+                           @else
+                             <input class="form-check-input"  type="checkbox" name="tags[]" id="tag{{$tag['id']}}" value="{{$tag['id']}}"
+                           {{
+                             (in_array($tag['id'],  $page['tags']))
+
+                             ? 'checked' : ''
+                           }}
+                            >
+                       @endif
                           <label class="form-check-label" for="tag{{$tag['id']}}">{{$tag['name']}}</label>
                         </div>
                         @endforeach
